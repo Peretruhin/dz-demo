@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rmq-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: rmq-short-app
+        image: rabbitmq:3.12.7-management
+        resources:
+          limits:
+            memory: "500Mi"
+            cpu: "500m"
+        ports:
+          - containerPort: 15672
+          - containerPort: 5672
+        env:
+          - name: RABBITMQ_DEFAULT_USER
+            value: demo
+          - name: RABBITMQ_DEFAULT_PASS
+            value: demo
+        volumeMounts:
+          - name: rabbit-mq-data
+            mountPath: /var/lib/rabbitmq
+      volumes:
+        - name: rabbit-mq-data
+          persistentVolumeClaim:
+            claimName: rabbitmq-pvc
